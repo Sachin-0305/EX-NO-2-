@@ -7,7 +7,7 @@
 
  
 
-To write a C program to implement the Playfair Substitution technique.
+To write a Python program to implement the Playfair Substitution technique.
 
 ## DESCRIPTION:
 
@@ -34,10 +34,120 @@ STEP-5: Display the obtained cipher text.
 
 
 
-Program:
+## Program:
+
+```
+
+def format_key(key):
+    key = key.upper().replace('J', 'I') 
+    formatted_key = []
+    seen = set()
+    for char in key:
+        if char.isalpha() and char not in seen:
+            formatted_key.append(char)
+            seen.add(char)
+    return ''.join(formatted_key)
+
+def create_matrix(key):
+    alphabet = 'ABCDEFGHIKLMNOPQRSTUVWXYZ'  
+    matrix = list(key)
+    
+
+    for char in alphabet:
+        if char not in matrix:
+            matrix.append(char)
+ 
+    return [matrix[i:i+5] for i in range(0, len(matrix), 5)]
+
+
+def prepare_plaintext(plaintext):
+    plaintext = plaintext.upper().replace('J', 'I')  
+    prepared_text = []
+    
+    i = 0
+    while i < len(plaintext):
+        if i + 1 < len(plaintext) and plaintext[i] == plaintext[i + 1]:
+            prepared_text.append(plaintext[i] + 'X') 
+            i += 1
+        else:
+            prepared_text.append(plaintext[i:i+2]) 
+            i += 2
+            
+    if len(prepared_text[-1]) == 1: 
+        prepared_text[-1] += 'X'
+    
+    return prepared_text
+
+def find_position(matrix, char):
+    for i, row in enumerate(matrix):
+        if char in row:
+            return i, row.index(char)
+
+
+def encrypt(plaintext, matrix):
+    prepared_text = prepare_plaintext(plaintext)
+    cipher_text = ''
+    
+    for bigram in prepared_text:
+        row1, col1 = find_position(matrix, bigram[0])
+        row2, col2 = find_position(matrix, bigram[1])
+        
+     
+        if row1 == row2:
+            cipher_text += matrix[row1][(col1 + 1) % 5]
+            cipher_text += matrix[row2][(col2 + 1) % 5]
+    
+        elif col1 == col2:
+            cipher_text += matrix[(row1 + 1) % 5][col1]
+            cipher_text += matrix[(row2 + 1) % 5][col2]
+       
+        else:
+            cipher_text += matrix[row1][col2]
+            cipher_text += matrix[row2][col1]
+    
+    return cipher_text
+
+def decrypt(ciphertext, matrix):
+    bigrams = [ciphertext[i:i+2] for i in range(0, len(ciphertext), 2)]
+    plain_text = ''
+    
+    for bigram in bigrams:
+        row1, col1 = find_position(matrix, bigram[0])
+        row2, col2 = find_position(matrix, bigram[1])
+        
+        if row1 == row2:
+            plain_text += matrix[row1][(col1 - 1) % 5]
+            plain_text += matrix[row2][(col2 - 1) % 5]
+       
+        elif col1 == col2:
+            plain_text += matrix[(row1 - 1) % 5][col1]
+            plain_text += matrix[(row2 - 1) % 5][col2]
+      
+        else:
+            plain_text += matrix[row1][col2]
+            plain_text += matrix[row2][col1]
+    
+    return plain_text
+
+if __name__ == "__main__":
+    key = input("Enter the key for Playfair Cipher: ")
+    plaintext = input("Enter the plaintext to encrypt: ")
+    
+    formatted_key = format_key(key)
+    matrix = create_matrix(formatted_key)
+    
+    encrypted_text = encrypt(plaintext, matrix)
+    print("Encrypted Text: ", encrypted_text)
+    
+    decrypted_text = decrypt(encrypted_text, matrix)
+    print("Decrypted Text: ", decrypted_text)
+
+```
 
 
 
+## Output:
+![Screenshot 2025-03-20 090751](https://github.com/user-attachments/assets/c0086376-e048-46e1-b75f-49a891b254c3)
 
-
-Output:
+## RESULT :
+The program is executed successfully
